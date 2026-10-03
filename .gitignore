@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+coverage/
+*.log
+# Local diagnostic/test fixtures
+/mcp-*.json
+/earth-asset-test.html
+/public-earth-diagnostic.html
+/apply_earth_patch.py

@@ -1,0 +1,53 @@
+{
+  "name": "ssl-monitor",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --import=tsx apps/api/src/server.ts",
+    "dev:web": "vite --host 127.0.0.1 --port 5173",
+    "build": "tsc -p tsconfig.json && vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --env-file-if-exists=.env ./node_modules/vitest/vitest.mjs run",
+    "test:watch": "node --env-file-if-exists=.env ./node_modules/vitest/vitest.mjs",
+    "db:migrate": "node --env-file-if-exists=.env --import=tsx packages/db/src/migrate.ts",
+    "start": "node --env-file-if-exists=.env dist/apps/api/src/server.js",
+    "worker:dev": "node --env-file-if-exists=.env --import=tsx apps/worker/src/worker.ts",
+    "worker:start": "node --env-file-if-exists=.env dist/apps/worker/src/worker.js",
+    "mcp:keygen": "node --env-file-if-exists=.env --import=tsx apps/mcp/src/keygen.ts",
+    "mcp:keyrevoke": "node --env-file-if-exists=.env --import=tsx apps/mcp/src/keyrevoke.ts",
+    "mcp": "node --env-file-if-exists=.env --import=tsx apps/mcp/src/server.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.1.0",
+    "@modelcontextprotocol/node": "^2.1.1",
+    "@modelcontextprotocol/server": "^2.3.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "argon2": "^0.44.0",
+    "fastify": "^5.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.468.0",
+    "pg": "^8.16.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "three": "^0.180.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.6.0",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@types/three": "^0.180.0",
+    "eslint": "^9.37.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7",
+    "vitest": "^3.2.4"
+  }
+}
