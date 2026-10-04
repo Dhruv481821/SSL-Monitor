@@ -1228,7 +1228,12 @@ function SettingsPage({
   onRetry: () => void;
 }) {
   const [form, setForm] = useState<Settings | null>(settings);
+  const [activeTab, setActiveTab] = useState<
+    "notifications" | "monitoring" | "account" | "appearance"
+  >("notifications");
+
   useEffect(() => setForm(settings), [settings]);
+
   if (error)
     return (
       <main className="page">
@@ -1240,6 +1245,7 @@ function SettingsPage({
         <ErrorState message={error} retry={onRetry} />
       </main>
     );
+
   if (!form)
     return (
       <main className="page">
@@ -1253,6 +1259,7 @@ function SettingsPage({
         </div>
       </main>
     );
+
   const toggleThreshold = (day: number) =>
     setForm({
       ...form,
@@ -1260,6 +1267,7 @@ function SettingsPage({
         ? form.expiryThresholdDays.filter((x) => x !== day)
         : [...form.expiryThresholdDays, day].sort((a, b) => b - a),
     });
+
   return (
     <main className="page">
       <PageHeader
@@ -1267,160 +1275,318 @@ function SettingsPage({
         title="Settings"
         description="Configure your notification preferences and monitoring options."
       />
+
       <div className="settings-tabs">
-        <button className="active">
+        <button
+          className={activeTab === "notifications" ? "active" : ""}
+          onClick={() => setActiveTab("notifications")}
+        >
           <Bell size={17} /> Notifications
         </button>
-        <button>
+
+        <button
+          className={activeTab === "monitoring" ? "active" : ""}
+          onClick={() => setActiveTab("monitoring")}
+        >
           <Zap size={17} /> Monitoring
         </button>
-        <button>
+
+        <button
+          className={activeTab === "account" ? "active" : ""}
+          onClick={() => setActiveTab("account")}
+        >
           <UserRound size={17} /> Account
         </button>
-        <button>
+
+        <button
+          className={activeTab === "appearance" ? "active" : ""}
+          onClick={() => setActiveTab("appearance")}
+        >
           <Sun size={17} /> Appearance
         </button>
       </div>
-      <div className="settings-grid">
-        <div className="panel settings-main">
-          <div className="setting-card">
-            <div className="setting-title">
-              <span className="setting-icon">
-                <Bell />
-              </span>
-              <div>
-                <h2>Email Notifications</h2>
-                <p>Receive SSL alerts via email.</p>
+
+      {activeTab === "notifications" && (
+        <div className="settings-grid">
+          <div className="panel settings-main">
+            <div className="setting-card">
+              <div className="setting-title">
+                <span className="setting-icon">
+                  <Bell />
+                </span>
+                <div>
+                  <h2>Email Notifications</h2>
+                  <p>Receive SSL alerts via email.</p>
+                </div>
+                <span
+                  className={`toggle ${form.emailEnabled ? "on" : ""}`}
+                  onClick={() =>
+                    setForm({ ...form, emailEnabled: !form.emailEnabled })
+                  }
+                >
+                  <span />
+                </span>
               </div>
-              <span
-                className={`toggle ${form.emailEnabled ? "on" : ""}`}
-                onClick={() =>
-                  setForm({ ...form, emailEnabled: !form.emailEnabled })
-                }
-              >
-                <span />
-              </span>
+
+              <label>
+                Email Address
+                <input
+                  value={form.emailAddress ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, emailAddress: e.target.value || null })
+                  }
+                  placeholder="you@example.com"
+                />
+              </label>
             </div>
-            <label>
-              Email Address
-              <input
-                value={form.emailAddress ?? ""}
-                onChange={(e) =>
-                  setForm({ ...form, emailAddress: e.target.value || null })
-                }
-                placeholder="you@example.com"
-              />
-            </label>
-          </div>
-          <div className="setting-card">
-            <div className="setting-title">
-              <span className="setting-icon">
-                <Link2 />
-              </span>
-              <div>
-                <h2>Webhook Notifications</h2>
-                <p>Receive SSL alerts via webhook.</p>
+
+            <div className="setting-card">
+              <div className="setting-title">
+                <span className="setting-icon">
+                  <Link2 />
+                </span>
+                <div>
+                  <h2>Webhook Notifications</h2>
+                  <p>Receive SSL alerts via webhook.</p>
+                </div>
+                <span
+                  className={`toggle ${form.webhookEnabled ? "on" : ""}`}
+                  onClick={() =>
+                    setForm({
+                      ...form,
+                      webhookEnabled: !form.webhookEnabled,
+                    })
+                  }
+                >
+                  <span />
+                </span>
               </div>
-              <span
-                className={`toggle ${form.webhookEnabled ? "on" : ""}`}
-                onClick={() =>
-                  setForm({ ...form, webhookEnabled: !form.webhookEnabled })
-                }
-              >
-                <span />
-              </span>
+
+              <label>
+                Webhook URL
+                <input
+                  value={form.webhookUrl ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, webhookUrl: e.target.value || null })
+                  }
+                  placeholder="https://your-webhook-url.com/..."
+                />
+              </label>
             </div>
-            <label>
-              Webhook URL
-              <input
-                value={form.webhookUrl ?? ""}
-                onChange={(e) =>
-                  setForm({ ...form, webhookUrl: e.target.value || null })
-                }
-                placeholder="https://your-webhook-url.com/..."
-              />
-            </label>
-          </div>
-          <div className="setting-card">
-            <div className="setting-title">
-              <span className="setting-icon">
-                <Clock3 />
-              </span>
-              <div>
-                <h2>Expiry Notification Thresholds</h2>
-                <p>Get notified when certificates approach expiry.</p>
+
+            <div className="setting-card">
+              <div className="setting-title">
+                <span className="setting-icon">
+                  <Clock3 />
+                </span>
+                <div>
+                  <h2>Expiry Notification Thresholds</h2>
+                  <p>Get notified when certificates approach expiry.</p>
+                </div>
+              </div>
+
+              <div className="thresholds">
+                {[30, 14, 7, 1].map((day) => (
+                  <label key={day}>
+                    <input
+                      type="checkbox"
+                      checked={form.expiryThresholdDays.includes(day)}
+                      onChange={() => toggleThreshold(day)}
+                    />{" "}
+                    <span>{day} days</span>
+                  </label>
+                ))}
               </div>
             </div>
-            <div className="thresholds">
-              {[30, 14, 7, 1].map((day) => (
-                <label key={day}>
-                  <input
-                    type="checkbox"
-                    checked={form.expiryThresholdDays.includes(day)}
-                    onChange={() => toggleThreshold(day)}
-                  />{" "}
-                  <span>{day} days</span>
-                </label>
-              ))}
+
+            <button
+              className="primary-button"
+              onClick={() => onSave(form)}
+              disabled={saving}
+            >
+              {saving ? (
+                <Loader2 className="spin" size={17} />
+              ) : (
+                <Check size={17} />
+              )}{" "}
+              Save Settings
+            </button>
+          </div>
+
+          <div className="settings-side">
+            <div className="panel">
+              <h2>Current Configuration</h2>
+              <p className="muted">
+                Your current notification and monitoring settings.
+              </p>
+
+              <div className="config-list">
+                <div>
+                  <MailIcon />
+                  <span>Email Alerts</span>
+                  <Badge tone={form.emailEnabled ? "success" : "neutral"}>
+                    {form.emailEnabled ? "Enabled" : "Disabled"}
+                  </Badge>
+                </div>
+
+                <div>
+                  <Link2 />
+                  <span>Webhook Alerts</span>
+                  <Badge tone={form.webhookEnabled ? "success" : "neutral"}>
+                    {form.webhookEnabled ? "Enabled" : "Disabled"}
+                  </Badge>
+                </div>
+
+                <div>
+                  <Clock3 />
+                  <span>Expiry Thresholds</span>
+                  <strong>{form.expiryThresholdDays.join(", ")} days</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="panel">
+              <h2>Monitoring Status</h2>
+              <p className="muted">
+                Your domain monitoring service is running and checking configured
+                domains automatically.
+              </p>
+
+              <div className="running">
+                <span className="live-dot" />
+                <strong>Monitoring Active</strong>
+              </div>
             </div>
           </div>
-          <button
-            className="primary-button"
-            onClick={() => onSave(form)}
-            disabled={saving}
-          >
-            {saving ? (
-              <Loader2 className="spin" size={17} />
-            ) : (
-              <Check size={17} />
-            )}{" "}
-            Save Settings
-          </button>
         </div>
-        <div className="settings-side">
-          <div className="panel">
-            <h2>Current Configuration</h2>
-            <p className="muted">
-              Your current notification and monitoring settings.
-            </p>
-            <div className="config-list">
-              <div>
-                <MailIcon />
-                <span>Email Alerts</span>
-                <Badge tone={form.emailEnabled ? "success" : "neutral"}>
-                  {form.emailEnabled ? "Enabled" : "Disabled"}
-                </Badge>
+      )}
+
+      {activeTab === "monitoring" && (
+        <div className="settings-grid">
+          <div className="panel settings-main">
+            <div className="setting-card">
+              <div className="setting-title">
+                <span className="setting-icon">
+                  <Zap />
+                </span>
+                <div>
+                  <h2>Domain Monitoring</h2>
+                  <p>
+                    SSL Monitor automatically checks your configured domains.
+                  </p>
+                </div>
               </div>
-              <div>
-                <Link2 />
-                <span>Webhook Alerts</span>
-                <Badge tone={form.webhookEnabled ? "success" : "neutral"}>
-                  {form.webhookEnabled ? "Enabled" : "Disabled"}
-                </Badge>
+
+              <div className="running">
+                <span className="live-dot" />
+                <strong>Monitoring Active</strong>
               </div>
-              <div>
-                <Clock3 />
-                <span>Expiry Thresholds</span>
-                <strong>{form.expiryThresholdDays.join(", ")} days</strong>
+            </div>
+
+            <div className="setting-card">
+              <div className="setting-title">
+                <span className="setting-icon">
+                  <Clock3 />
+                </span>
+                <div>
+                  <h2>Automatic Checks</h2>
+                  <p>
+                    Monitoring checks are scheduled automatically for enabled
+                    domains.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div className="panel">
-            <h2>Monitoring Status</h2>
-            <p className="muted">
-              Your domain monitoring service is running and checking configured
-              domains automatically.
-            </p>
-            <div className="running">
-              <span className="live-dot" />
-              <strong>Monitoring Active</strong>
+
+          <div className="settings-side">
+            <div className="panel">
+              <h2>Monitoring Overview</h2>
+              <p className="muted">
+                Manage individual domain monitoring from the Domains page.
+              </p>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === "account" && (
+        <div className="settings-grid">
+          <div className="panel settings-main">
+            <div className="setting-card">
+              <div className="setting-title">
+                <span className="setting-icon">
+                  <UserRound />
+                </span>
+                <div>
+                  <h2>Account</h2>
+                  <p>Your SSL Monitor account is currently authenticated.</p>
+                </div>
+              </div>
+
+              <div className="config-list">
+                <div>
+                  <UserRound />
+                  <span>Account Status</span>
+                  <Badge tone="success">Authenticated</Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-side">
+            <div className="panel">
+              <h2>Security</h2>
+              <p className="muted">
+                Your session is protected by the application's authentication
+                system.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "appearance" && (
+        <div className="settings-grid">
+          <div className="panel settings-main">
+            <div className="setting-card">
+              <div className="setting-title">
+                <span className="setting-icon">
+                  <Sun />
+                </span>
+                <div>
+                  <h2>Appearance</h2>
+                  <p>
+                    Choose the visual theme for your SSL Monitor workspace.
+                  </p>
+                </div>
+              </div>
+
+              <div className="config-list">
+                <div>
+                  <Sun />
+                  <span>Theme</span>
+                  <strong>Use the theme button in the top bar</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-side">
+            <div className="panel">
+              <h2>Theme</h2>
+              <p className="muted">
+                Use the sun/moon button in the top navigation to switch between
+                light and dark mode.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
+
 function MailIcon() {
   return <span className="mail-icon">✉</span>;
 }
