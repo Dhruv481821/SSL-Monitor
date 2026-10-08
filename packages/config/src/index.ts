@@ -88,7 +88,16 @@ const schema = z.object({
     z.string().optional(),
   ),
   SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(465),
-  SMTP_SECURE: z.coerce.boolean().default(true),
+  SMTP_SECURE: z.preprocess(
+    (value) =>
+      value === "" || value === undefined
+        ? undefined
+        : String(value).toLowerCase(),
+    z
+      .enum(["true", "false"])
+      .default("true")
+      .transform((value) => value === "true"),
+  ),
   SMTP_USER: z.preprocess(
     (value) => (value === "" ? undefined : value),
     z.string().optional(),

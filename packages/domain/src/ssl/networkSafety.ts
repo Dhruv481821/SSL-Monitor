@@ -284,6 +284,7 @@ export async function postSafeWebhook(
         path: `${url.pathname}${url.search}`,
         method: "POST",
         headers: {
+          host: target.hostname,
           "content-type": "application/json",
           "content-length": Buffer.byteLength(body),
           accept: "application/json,text/plain;q=0.9,*/*;q=0.8",
